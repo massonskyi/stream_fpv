@@ -1,0 +1,8 @@
+/home/orangepi/Downloads/VisorShowClient/CMakeFiles/VisorShowClient.dir
+/home/orangepi/Downloads/VisorShowClient/CMakeFiles/edit_cache.dir
+/home/orangepi/Downloads/VisorShowClient/CMakeFiles/rebuild_cache.dir
+/home/orangepi/Downloads/VisorShowClient/CMakeFiles/list_install_components.dir
+/home/orangepi/Downloads/VisorShowClient/CMakeFiles/install.dir
+/home/orangepi/Downloads/VisorShowClient/CMakeFiles/install/local.dir
+/home/orangepi/Downloads/VisorShowClient/CMakeFiles/install/strip.dir
+/home/orangepi/Downloads/VisorShowClient/CMakeFiles/VisorShowClient_autogen.dir

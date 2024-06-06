@@ -1,0 +1,109 @@
+#include "cameracontroller.h"
+#include "cameracapture.h"
+#include "capturesender.h"
+
+#include <QtNetwork/QTcpServer>
+#include <QtNetwork/QTcpSocket>
+#include <QThread>
+
+#include <controlstructs.h>
+#include <constants.h>
+
+CameraController::CameraController():
+    mServer(new QTcpServer(this)),
+    mCamera(nullptr),
+    mCameraThread(nullptr)
+{
+    mServer->listen(QHostAddress::Any, Constants::START_PORT);// this
+
+    connect(mServer, &QTcpServer::newConnection, [this](){
+        QTcpSocket* clientSocket= mServer->nextPendingConnection();
+
+        if(mCamera){
+            clientSocket->close();
+            return;
+        }
+        qDebug()<<"New Client!";
+        connect(clientSocket, &QTcpSocket::readyRead, this, &CameraController::control);
+        connect(clientSocket, &QTcpSocket::disconnected, this, &CameraController::lostConnection);
+    });
+
+    mSenderThread = new QThread(this);
+    mSender = new CaptureSender();
+
+    mSender->moveToThread(mSenderThread);
+
+    connect(mSenderThread, &QThread::started, mSender, &CaptureSender::init);
+
+    connect(this, &CameraController::setDestinationAddres, mSender, &CaptureSender::setDestination);
+
+    mSenderThread->start();
+}
+
+CameraController::~CameraController()
+{
+    if(mCameraThread){
+        mCameraThread->requestInterruption();
+        mCameraThread->quit();
+    }
+    if(mSenderThread)
+        mSenderThread->quit();
+}
+
+void CameraController::control()
+{
+    enum{
+        CONTROL_COMMAND = 0xff
+    };
+
+    ControlStructs::ControlMessage cm;
+    memset(cm.raw, 0, sizeof(ControlStructs::ControlMessage));
+
+    QTcpSocket* sock = (QTcpSocket*)sender();
+
+    auto data = sock->readAll();
+    if(data.size() == sizeof(ControlStructs::ControlMessage) && data.front() == char(CONTROL_COMMAND)){
+        memcpy(&cm, data.data(), sizeof(ControlStructs::ControlMessage));
+        qDebug() << "Messge ID:" << cm.parted.message_id <<
+            "\nCamera Number:" << cm.parted.camera_number <<
+            "\nWrap Ip:" << QHostAddress(cm.parted.wrap_ip) <<
+            "\nPort:" << cm.parted.port;
+	emit setDestinationAddres(QHostAddress(cm.parted.wrap_ip), cm.parted.port);
+	qDebug()<<"set address"<<
+		"start camera capture";
+	startCameraCapture(cm.parted.camera_number);
+    }else{
+	qDebug()<<"lost connection";
+	lostConnection();
+	}
+}
+
+void CameraController::lostConnection()
+{
+    qDebug() << "Client lost";
+
+    if(mCameraThread){
+        mCameraThread->requestInterruption();
+        mCameraThread->quit();
+    }
+}
+
+void CameraController::startCameraCapture(int _cameraNumber)
+{
+    mCameraThread = new QThread();
+    mCamera = new CameraCapture(_cameraNumber);
+
+    mCamera->moveToThread(mCameraThread);
+
+    connect(mCameraThread, &QThread::started, mCamera, &CameraCapture::captureContinue);
+    connect(mCameraThread, &QThread::finished, [&](){
+        mCameraThread->deleteLater();
+        mCamera->deleteLater();
+
+        mCamera = nullptr;
+        mCameraThread = nullptr;
+    });
+    connect(mCamera, &CameraCapture::frameCapture, mSender, &CaptureSender::send);
+
+    mCameraThread->start();
+}

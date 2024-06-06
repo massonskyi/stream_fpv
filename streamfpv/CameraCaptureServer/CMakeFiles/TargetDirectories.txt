@@ -1,0 +1,8 @@
+/home/orangepi/Downloads/CameraCaptureServer/CMakeFiles/CameraCaptureServer.dir
+/home/orangepi/Downloads/CameraCaptureServer/CMakeFiles/edit_cache.dir
+/home/orangepi/Downloads/CameraCaptureServer/CMakeFiles/rebuild_cache.dir
+/home/orangepi/Downloads/CameraCaptureServer/CMakeFiles/list_install_components.dir
+/home/orangepi/Downloads/CameraCaptureServer/CMakeFiles/install.dir
+/home/orangepi/Downloads/CameraCaptureServer/CMakeFiles/install/local.dir
+/home/orangepi/Downloads/CameraCaptureServer/CMakeFiles/install/strip.dir
+/home/orangepi/Downloads/CameraCaptureServer/CMakeFiles/CameraCaptureServer_autogen.dir

@@ -1,0 +1,4 @@
+Cannot generate into /home/user064/CLionProjects/streamfpv_local/streamfpv/CameraCaptureServer
+It is already used for project /home/orangepi/Downloads/CameraCaptureServer
+
+Please either delete it manually or select another generation directory

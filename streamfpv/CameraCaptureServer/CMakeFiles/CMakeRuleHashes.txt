@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+2ca31eae39cbb2d63d2ebcb0f3248e7e CMakeFiles/CameraCaptureServer_autogen
